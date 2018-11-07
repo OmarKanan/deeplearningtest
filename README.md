@@ -1,4 +1,4 @@
-# ArturIn deep learning test
+# Deep learning test
 
 ## Problème
 
