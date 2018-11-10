@@ -2,4 +2,4 @@
 *.pyc
 .ipynb_checkpoints
 wiki.fr.vec
-
+Data/generated/
