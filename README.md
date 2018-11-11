@@ -1,9 +1,8 @@
 # Deep learning test
-Les chemins de fichiers sont configurables dans `config.py`
-Mes prédictions sont disponibles ici:
-`Data/Test/my_labels_naive_bayes.pkl`
-`Data/Test/my_labels_dnn.pkl`
-
+Les chemins de fichiers sont configurables dans `config.py`  
+Mes prédictions sont disponibles ici:  
+`Data/Test/my_labels_naive_bayes.pkl`  
+`Data/Test/my_labels_dnn.pkl`  
 Les 2 modèles donnent des scores similaires.
 
 ### Modèle Naive Bayes
