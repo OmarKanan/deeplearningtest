@@ -1,7 +1,7 @@
 import os
 
 import tensorflow as tf
-from tensorflow.python.keras._impl.keras.preprocessing.sequence import pad_sequences
+from keras_preprocessing.sequence import pad_sequences
 
 from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.preprocessing import LabelEncoder
@@ -11,10 +11,10 @@ class CNNModel(BaseEstimator, ClassifierMixin):
     def __init__(self,
                  sentence_length,
                  embeddings,
-                 filters_by_ksize=5,
+                 filters_by_ksize=50,
                  kernel_sizes=(2,),
                  batch_size=128,
-                 learning_rate=0.1,
+                 learning_rate=0.01,
                  dropout_keep_prob=1.0,
                  model_name=None,
                  checkpoints_dir="../checkpoints/",
@@ -47,7 +47,7 @@ class CNNModel(BaseEstimator, ClassifierMixin):
             # Check if model was already fitted
             try:
                 self.classifier_
-            except NameError:
+            except AttributeError:
                 warm_start = False
         return warm_start
 
@@ -151,7 +151,6 @@ class CNNModel(BaseEstimator, ClassifierMixin):
             self.classifier_ = self.create_dnn_classifier()
         else:
             X, y = self.apply_transformers(X, y)
-
         self.classifier_.train(self.input_fn(tf.estimator.ModeKeys.TRAIN, X, y, num_epochs))
         return self
 
