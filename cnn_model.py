@@ -14,8 +14,9 @@ class CNNModel(BaseEstimator, ClassifierMixin):
                  filters_by_ksize=50,
                  kernel_sizes=(2,),
                  batch_size=128,
-                 learning_rate=0.01,
+                 learning_rate=0.05,
                  dropout_keep_prob=1.0,
+                 weight_class_M=1.0,
                  model_name=None,
                  checkpoints_dir="../checkpoints/",
                  ):
@@ -27,6 +28,7 @@ class CNNModel(BaseEstimator, ClassifierMixin):
         self.batch_size = batch_size
         self.learning_rate = learning_rate
         self.dropout_keep_prob = dropout_keep_prob
+        self.weight_class_M = weight_class_M
         self.features_key = "x"
         self.weight_key = "weight"
         self.model_dir = self.set_model_directory(checkpoints_dir, model_name)
@@ -98,7 +100,7 @@ class CNNModel(BaseEstimator, ClassifierMixin):
         # Loss
         class_M = self.label_encoder_.transform(["M"])
         weights = tf.cast(tf.equal(labels, class_M), tf.float64)
-        weights = tf.multiply(weights, (6.63 - 1)) + 1
+        weights = tf.multiply(weights, (self.weight_class_M - 1)) + 1
         loss = tf.losses.sparse_softmax_cross_entropy(labels=labels, logits=logits, weights=weights)
 
         # Eval
@@ -116,7 +118,8 @@ class CNNModel(BaseEstimator, ClassifierMixin):
         else:
             shuffle, num_epochs, y = (False, 1, None)
         X = {self.features_key: X}
-        return tf.estimator.inputs.numpy_input_fn(X, y, self.batch_size, num_epochs, shuffle)
+        return tf.estimator.inputs.numpy_input_fn(X, y, batch_size=self.batch_size,
+                                                  num_epochs=num_epochs, shuffle=shuffle)
 
     def create_dnn_classifier(self):
         # Columns of X
@@ -125,7 +128,7 @@ class CNNModel(BaseEstimator, ClassifierMixin):
 
         # Params
         params = {"feature_columns": self.feature_columns_, "n_classes": self.n_classes_}
-        run_config = tf.estimator.RunConfig(model_dir=self.model_dir, log_step_count_steps=10)
+        run_config = tf.estimator.RunConfig(model_dir=self.model_dir, log_step_count_steps=50)
         
         # Model
         model = tf.estimator.Estimator(model_fn=self.model_fn, params=params, config=run_config)
@@ -144,13 +147,17 @@ class CNNModel(BaseEstimator, ClassifierMixin):
         self.n_classes_ = len(self.label_encoder_.classes_)
         return X, y
 
-    def fit(self, X, y, num_epochs=1, warm_start=True):
+    def fit(self, X, y, num_epochs=5, warm_start=True):
+        num_steps = num_epochs * len(y) // self.batch_size
+        print("\n" + "-" * 80 + "\nTRAINING FOR %d STEPS...\n" % num_steps + "-" * 80 + "\n")
+
         warm_start = self.check_warm_start(warm_start)
         if not warm_start:
             X, y = self.fit_and_apply_transformers(X, y)
             self.classifier_ = self.create_dnn_classifier()
         else:
             X, y = self.apply_transformers(X, y)
+        
         self.classifier_.train(self.input_fn(tf.estimator.ModeKeys.TRAIN, X, y, num_epochs))
         return self
 
