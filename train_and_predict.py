@@ -10,6 +10,7 @@ from sklearn.pipeline import Pipeline
 
 from dnn_model import DNNModel
 from cnn_model import CNNModel
+from lstm_model import LSTMModel
 from config import *
 
 
@@ -72,11 +73,12 @@ def create_model(model_type, X_train, y_train):
         weight_M = get_weight_for_class_M(y_train)   
         model = DNNModel(weight_class_M=weight_M)
         
-    elif model_type == "cnn":
+    elif model_type in {"cnn", "lstm"}:
+        model_class = CNNModel if model_type == "cnn" else LSTMModel
         weight_M = get_weight_for_class_M(y_train)
         sentence_length = max(map(len, X_train))
         embeddings = load_embeddings()
-        model = CNNModel(
+        model = model_class(
             sentence_length=sentence_length,
             embeddings=embeddings,
             weight_class_M=weight_M, 
@@ -89,7 +91,7 @@ def create_model(model_type, X_train, y_train):
 
 
 def train_and_predict(model_type):
-    custom = True if model_type in {"dnn", "cnn"} else False
+    custom = True if model_type in {"dnn", "cnn", "lstm"} else False
     
     X_train, y_train = load_train_data(custom=custom, shuffle=True)
     print("Loaded train data")
@@ -110,7 +112,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--model_type", help="choose which type of model to use",
-        choices=["naive_bayes", "dnn", "cnn"], required=True
+        choices=["naive_bayes", "dnn", "cnn", "lstm"], required=True
     )
     args = parser.parse_args()
     print("\nUsing '%s' model" % args.model_type)

@@ -3,6 +3,7 @@ Choisir un type de modèle parmi:
 `naive_bayes`  
 `dnn`  
 `cnn`  
+`lstm`  
 
 Lancer l'entrainement et sauvegarder les prédictions, par exemple:
 ~~~bash
@@ -15,6 +16,7 @@ Mes prédictions sont disponibles ici:
 `Data/Test/my_labels_naive_bayes.pkl`  
 `Data/Test/my_labels_dnn.pkl`  
 `Data/Test/my_labels_cnn.pkl`  
+`Data/Test/my_labels_lstm.pkl`  
 
 
 ### Ma configuration
