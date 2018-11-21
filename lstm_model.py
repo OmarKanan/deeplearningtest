@@ -162,7 +162,7 @@ class LSTMModel(BaseEstimator, ClassifierMixin):
         labels = self.label_encoder_.inverse_transform(classes)
         return labels
 
-    def fit(self, X, y, num_epochs=1, warm_start=True):
+    def fit(self, X, y, num_epochs=11, warm_start=True):
         warm_start = self.check_warm_start(warm_start)
         if not warm_start:
             X, y = self.fit_and_apply_transformers(X, y)
